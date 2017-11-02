@@ -7,7 +7,6 @@ typedef struct ms_ecall_foo_t {
 	int ms_i;
 } ms_ecall_foo_t;
 
-
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -90,7 +89,7 @@ sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 3, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 2, &ocall_table_Enclave, &ms);
 	return status;
 }
 

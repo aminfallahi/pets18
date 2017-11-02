@@ -23,7 +23,6 @@ typedef struct ms_ecall_foo_t {
 	int ms_i;
 } ms_ecall_foo_t;
 
-
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -101,9 +100,9 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[4];
+	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[3];
 } g_ecall_table = {
-	4,
+	3,
 	{
 		{(void*)(uintptr_t)sgx_ecall_function_calling_convs, 0},
 		{(void*)(uintptr_t)sgx_ecall_foo, 0},
@@ -113,13 +112,13 @@ SGX_EXTERNC const struct {
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[3][4];
+	uint8_t entry_table[3][3];
 } g_dyn_entry_table = {
 	3,
 	{
-		{0, 0, 0, 0, },
-		{0, 0, 0, 0, },
-		{0, 0, 0, 0, },
+		{0, 0, 0, },
+		{0, 0, 0, },
+		{0, 0, 0, },
 	}
 };
 

@@ -2,6 +2,7 @@
 
 SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
+#SGX_DEBUG ?= 1
 
 CC = clang-3.5
 
