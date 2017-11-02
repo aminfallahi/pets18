@@ -55,7 +55,29 @@ bar1("ocall_bar returns: %d\n", ret);
     return i+1;
 }
 
+void ecall_shuffle(void* arr, int size)
+{
+	int *tmp=(int*)arr;
+	int *p=(int*)malloc(size*sizeof(int));
+	int i,j,c;
+	for (i=0; i<size; i++){
+		sgx_read_rand((unsigned char *) &c, sizeof(int));
+		p[i]=c%size;
+	}
 
+	for (i=0; i<size-1; i++)
+		for (j=0; j<size-i-1; j++)
+			if (p[j]<p[j+1]){
+				c=p[j];
+				p[j]=p[j+1];
+				p[j+1]=c;
+				c=tmp[j];
+				tmp[j]=tmp[j+1];
+				tmp[j+1]=c;
+			}
+	arr=(void*)tmp;
+
+}
 
 /* ecall_sgx_cpuid:
  *   Uses sgx_cpuid to get CPU features and types.

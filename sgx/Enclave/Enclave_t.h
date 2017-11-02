@@ -20,6 +20,7 @@ extern "C" {
 void ecall_function_calling_convs();
 int ecall_foo(int i);
 int ecall_amin(int i);
+void ecall_shuffle(void* arr, int size);
 void ecall_sgx_cpuid(int cpuinfo[4], int leaf);
 
 sgx_status_t SGX_CDECL ocall_bar(const char* str, int ret[1]);

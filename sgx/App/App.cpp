@@ -17,6 +17,18 @@ int ecall_foo1(int i)
     int retval;
     ret = ecall_foo(global_eid, &retval, i);
     ret = ecall_amin(global_eid, &retval, i);
+int * fff=(int*)malloc(100*sizeof(int));
+int * ooo=(int*)malloc(100*sizeof(int));
+int siz,aaa;
+for (aaa=0; aaa<100; aaa++)
+	fff[aaa]=aaa;
+for (aaa=0; aaa<100; aaa++)
+        printf("%d ",fff[aaa]);
+	printf("\n");
+    ecall_shuffle(global_eid, (void*)fff,100);
+ooo=(int*)fff;
+for (aaa=0; aaa<100; aaa++)
+        printf("%d ",ooo[aaa]);
 
 
     if (ret != SGX_SUCCESS)

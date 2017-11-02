@@ -12,6 +12,11 @@ typedef struct ms_ecall_amin_t {
 	int ms_i;
 } ms_ecall_amin_t;
 
+typedef struct ms_ecall_shuffle_t {
+	void* ms_arr;
+	int ms_size;
+} ms_ecall_shuffle_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -98,13 +103,23 @@ sgx_status_t ecall_amin(sgx_enclave_id_t eid, int* retval, int i)
 	return status;
 }
 
+sgx_status_t ecall_shuffle(sgx_enclave_id_t eid, void* arr, int size)
+{
+	sgx_status_t status;
+	ms_ecall_shuffle_t ms;
+	ms.ms_arr = arr;
+	ms.ms_size = size;
+	status = sgx_ecall(eid, 3, &ocall_table_Enclave, &ms);
+	return status;
+}
+
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 {
 	sgx_status_t status;
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 3, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 4, &ocall_table_Enclave, &ms);
 	return status;
 }
 

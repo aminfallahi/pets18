@@ -15,6 +15,7 @@ enclave {
          */
         public int ecall_foo(int i);
         public int ecall_amin(int i);
+        public void ecall_shuffle([user_check]void* arr, int size);
 
 
         /*
