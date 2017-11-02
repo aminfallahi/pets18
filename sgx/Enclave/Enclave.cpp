@@ -42,6 +42,21 @@ bar1("ocall_bar returns: %d\n", ret);
     return i+1;
 }
 
+int ecall_amin(int i)
+{
+    void *ptr = malloc(100);
+    assert(ptr != NULL);
+    memset(ptr, 0x0, 100);
+    free(ptr);
+
+int ret = bar1("calling ocall_bar with: %d\n", 23);
+bar1("ocall_bar returns: %d\n", ret);
+
+    return i+1;
+}
+
+
+
 /* ecall_sgx_cpuid:
  *   Uses sgx_cpuid to get CPU features and types.
  */

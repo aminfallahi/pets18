@@ -16,10 +16,12 @@ int ecall_foo1(int i)
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
     int retval;
     ret = ecall_foo(global_eid, &retval, i);
+    ret = ecall_amin(global_eid, &retval, i);
+
 
     if (ret != SGX_SUCCESS)
         abort();
-    
+
     int cpuid[4] = {0x1, 0x0, 0x0, 0x0};
     ret = ecall_sgx_cpuid(global_eid, cpuid, 0x0);
     if (ret != SGX_SUCCESS)

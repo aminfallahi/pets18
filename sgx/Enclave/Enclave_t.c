@@ -23,6 +23,11 @@ typedef struct ms_ecall_foo_t {
 	int ms_i;
 } ms_ecall_foo_t;
 
+typedef struct ms_ecall_amin_t {
+	int ms_retval;
+	int ms_i;
+} ms_ecall_amin_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -68,6 +73,19 @@ static sgx_status_t SGX_CDECL sgx_ecall_foo(void* pms)
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_ecall_amin(void* pms)
+{
+	ms_ecall_amin_t* ms = SGX_CAST(ms_ecall_amin_t*, pms);
+	sgx_status_t status = SGX_SUCCESS;
+
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_amin_t));
+
+	ms->ms_retval = ecall_amin(ms->ms_i);
+
+
+	return status;
+}
+
 static sgx_status_t SGX_CDECL sgx_ecall_sgx_cpuid(void* pms)
 {
 	ms_ecall_sgx_cpuid_t* ms = SGX_CAST(ms_ecall_sgx_cpuid_t*, pms);
@@ -100,25 +118,26 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[3];
+	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[4];
 } g_ecall_table = {
-	3,
+	4,
 	{
 		{(void*)(uintptr_t)sgx_ecall_function_calling_convs, 0},
 		{(void*)(uintptr_t)sgx_ecall_foo, 0},
+		{(void*)(uintptr_t)sgx_ecall_amin, 0},
 		{(void*)(uintptr_t)sgx_ecall_sgx_cpuid, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[3][3];
+	uint8_t entry_table[3][4];
 } g_dyn_entry_table = {
 	3,
 	{
-		{0, 0, 0, },
-		{0, 0, 0, },
-		{0, 0, 0, },
+		{0, 0, 0, 0, },
+		{0, 0, 0, 0, },
+		{0, 0, 0, 0, },
 	}
 };
 

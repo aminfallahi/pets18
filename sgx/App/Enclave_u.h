@@ -23,6 +23,7 @@ void SGX_UBRIDGE(SGX_CDECL, sgx_oc_cpuidex, (int cpuinfo[4], int leaf, int suble
 
 sgx_status_t ecall_function_calling_convs(sgx_enclave_id_t eid);
 sgx_status_t ecall_foo(sgx_enclave_id_t eid, int* retval, int i);
+sgx_status_t ecall_amin(sgx_enclave_id_t eid, int* retval, int i);
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf);
 
 #ifdef __cplusplus
