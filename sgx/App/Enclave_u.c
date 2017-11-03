@@ -17,6 +17,11 @@ typedef struct ms_ecall_shuffle_t {
 	int ms_size;
 } ms_ecall_shuffle_t;
 
+typedef struct ms_ecall_chAddress_t {
+	int* ms_retval;
+	void* ms_a;
+} ms_ecall_chAddress_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -26,6 +31,7 @@ typedef struct ms_ocall_bar_t {
 	char* ms_str;
 	int* ms_ret;
 } ms_ocall_bar_t;
+
 
 typedef struct ms_memccpy_t {
 	void* ms_retval;
@@ -49,6 +55,13 @@ static sgx_status_t SGX_CDECL Enclave_ocall_bar(void* pms)
 	return SGX_SUCCESS;
 }
 
+static sgx_status_t SGX_CDECL Enclave_ocall_tlbShootdown(void* pms)
+{
+	if (pms != NULL) return SGX_ERROR_INVALID_PARAMETER;
+	ocall_tlbShootdown();
+	return SGX_SUCCESS;
+}
+
 static sgx_status_t SGX_CDECL Enclave_memccpy(void* pms)
 {
 	ms_memccpy_t* ms = SGX_CAST(ms_memccpy_t*, pms);
@@ -67,11 +80,12 @@ static sgx_status_t SGX_CDECL Enclave_sgx_oc_cpuidex(void* pms)
 
 static const struct {
 	size_t nr_ocall;
-	void * table[3];
+	void * table[4];
 } ocall_table_Enclave = {
-	3,
+	4,
 	{
 		(void*)Enclave_ocall_bar,
+		(void*)Enclave_ocall_tlbShootdown,
 		(void*)Enclave_memccpy,
 		(void*)Enclave_sgx_oc_cpuidex,
 	}
@@ -113,13 +127,23 @@ sgx_status_t ecall_shuffle(sgx_enclave_id_t eid, void* arr, int size)
 	return status;
 }
 
+sgx_status_t ecall_chAddress(sgx_enclave_id_t eid, int** retval, void* a)
+{
+	sgx_status_t status;
+	ms_ecall_chAddress_t ms;
+	ms.ms_a = a;
+	status = sgx_ecall(eid, 4, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 {
 	sgx_status_t status;
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 4, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 5, &ocall_table_Enclave, &ms);
 	return status;
 }
 

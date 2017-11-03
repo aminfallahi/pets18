@@ -17,19 +17,6 @@ int ecall_foo1(int i)
     int retval;
     ret = ecall_foo(global_eid, &retval, i);
     ret = ecall_amin(global_eid, &retval, i);
-int * fff=(int*)malloc(100*sizeof(int));
-int * ooo=(int*)malloc(100*sizeof(int));
-int siz,aaa;
-for (aaa=0; aaa<100; aaa++)
-	fff[aaa]=aaa;
-for (aaa=0; aaa<100; aaa++)
-        printf("%d ",fff[aaa]);
-	printf("\n");
-    ecall_shuffle(global_eid, (void*)fff,100);
-ooo=(int*)fff;
-for (aaa=0; aaa<100; aaa++)
-        printf("%d ",ooo[aaa]);
-
 
     if (ret != SGX_SUCCESS)
         abort();
@@ -228,6 +215,13 @@ void ocall_bar(const char *str, int ret[1])
      */
     printf("%s", str);
     ret[0] = 13;
+}
+
+void ocall_tlbShootdown()
+{
+	pid_t p;
+	fork();
+	if (p==0);
 }
 
 /* Application entry */

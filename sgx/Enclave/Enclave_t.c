@@ -33,6 +33,11 @@ typedef struct ms_ecall_shuffle_t {
 	int ms_size;
 } ms_ecall_shuffle_t;
 
+typedef struct ms_ecall_chAddress_t {
+	int* ms_retval;
+	void* ms_a;
+} ms_ecall_chAddress_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -42,6 +47,7 @@ typedef struct ms_ocall_bar_t {
 	char* ms_str;
 	int* ms_ret;
 } ms_ocall_bar_t;
+
 
 typedef struct ms_memccpy_t {
 	void* ms_retval;
@@ -105,6 +111,20 @@ static sgx_status_t SGX_CDECL sgx_ecall_shuffle(void* pms)
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_ecall_chAddress(void* pms)
+{
+	ms_ecall_chAddress_t* ms = SGX_CAST(ms_ecall_chAddress_t*, pms);
+	sgx_status_t status = SGX_SUCCESS;
+	void* _tmp_a = ms->ms_a;
+
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_chAddress_t));
+
+	ms->ms_retval = ecall_chAddress(_tmp_a);
+
+
+	return status;
+}
+
 static sgx_status_t SGX_CDECL sgx_ecall_sgx_cpuid(void* pms)
 {
 	ms_ecall_sgx_cpuid_t* ms = SGX_CAST(ms_ecall_sgx_cpuid_t*, pms);
@@ -137,27 +157,29 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[5];
+	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[6];
 } g_ecall_table = {
-	5,
+	6,
 	{
 		{(void*)(uintptr_t)sgx_ecall_function_calling_convs, 0},
 		{(void*)(uintptr_t)sgx_ecall_foo, 0},
 		{(void*)(uintptr_t)sgx_ecall_amin, 0},
 		{(void*)(uintptr_t)sgx_ecall_shuffle, 0},
+		{(void*)(uintptr_t)sgx_ecall_chAddress, 0},
 		{(void*)(uintptr_t)sgx_ecall_sgx_cpuid, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[3][5];
+	uint8_t entry_table[4][6];
 } g_dyn_entry_table = {
-	3,
+	4,
 	{
-		{0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, },
 	}
 };
 
@@ -213,6 +235,14 @@ sgx_status_t SGX_CDECL ocall_bar(const char* str, int ret[1])
 	return status;
 }
 
+sgx_status_t SGX_CDECL ocall_tlbShootdown()
+{
+	sgx_status_t status = SGX_SUCCESS;
+	status = sgx_ocall(1, NULL);
+
+	return status;
+}
+
 sgx_status_t SGX_CDECL memccpy(void** retval, void* dest, const void* src, int val, size_t len)
 {
 	sgx_status_t status = SGX_SUCCESS;
@@ -258,7 +288,7 @@ sgx_status_t SGX_CDECL memccpy(void** retval, void* dest, const void* src, int v
 	
 	ms->ms_val = val;
 	ms->ms_len = len;
-	status = sgx_ocall(1, ms);
+	status = sgx_ocall(2, ms);
 
 	if (retval) *retval = ms->ms_retval;
 	if (dest) memcpy((void*)dest, ms->ms_dest, _len_dest);
@@ -299,7 +329,7 @@ sgx_status_t SGX_CDECL sgx_oc_cpuidex(int cpuinfo[4], int leaf, int subleaf)
 	
 	ms->ms_leaf = leaf;
 	ms->ms_subleaf = subleaf;
-	status = sgx_ocall(2, ms);
+	status = sgx_ocall(3, ms);
 
 	if (cpuinfo) memcpy((void*)cpuinfo, ms->ms_cpuinfo, _len_cpuinfo);
 

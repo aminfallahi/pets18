@@ -21,9 +21,11 @@ void ecall_function_calling_convs();
 int ecall_foo(int i);
 int ecall_amin(int i);
 void ecall_shuffle(void* arr, int size);
+int* ecall_chAddress(void* a);
 void ecall_sgx_cpuid(int cpuinfo[4], int leaf);
 
 sgx_status_t SGX_CDECL ocall_bar(const char* str, int ret[1]);
+sgx_status_t SGX_CDECL ocall_tlbShootdown();
 sgx_status_t SGX_CDECL memccpy(void** retval, void* dest, const void* src, int val, size_t len);
 sgx_status_t SGX_CDECL sgx_oc_cpuidex(int cpuinfo[4], int leaf, int subleaf);
 
