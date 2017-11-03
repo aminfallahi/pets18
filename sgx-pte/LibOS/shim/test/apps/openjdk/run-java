@@ -1,0 +1,11 @@
+#!/bin/bash
+
+JAVA_FLAGS="-Xmx4m -Xms1m -XX:NewSize=256k -XX:MaxNewSize=1m -Xss1m -XX:+UseSerialGC -XX:-UsePerfData -XX:+DisableExplicitGC -XX:PermSize=4m -XX:MaxPermSize=16m -XX:MinHeapFreeRatio=0 -XX:MaxHeapFreeRatio=30 -XX:-UseCompiler"
+
+PAL=../pal_loader
+if [ "$1" = "-native" ]; then
+	shift
+	PAL=
+fi
+
+exec $PAL `make java_home`/bin/java $JAVA_FLAGS $*
