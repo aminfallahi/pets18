@@ -59,14 +59,14 @@ void ecall_shuffle(void* arr, int size)
 {
 	ocall_tlbShootdown();
 	int *tmp=(int*)arr;
-	int *p=(int*)malloc(size*sizeof(int));
+	int *p=(int*)malloc(size*size*sizeof(int));
 	int i,j,k,c;
 	for (i=0; i<size; i++){
 		sgx_read_rand((unsigned char *) &c, sizeof(int));
 		p[i]=c%size;
 	}
-
-/*	for (i=0; i<size-1; i++)
+/*
+	for (i=0; i<size-1; i++)
 		for (j=0; j<size-i-1; j++)
 			if (p[j]<p[j+1]){
 				c=p[j];
