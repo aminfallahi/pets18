@@ -1,0 +1,27 @@
+all_hosts = Skeleton Linux Linux-SGX FreeBSD
+
+ifeq ($(OS),)
+SYS := $(shell gcc -dumpmachine)
+ifeq ($(SYS),x86_64-linux-gnu)
+OS := Linux
+else ifeq ($(findstring freebsd,$(SYS)),freebsd)
+OS := FreeBSD
+else
+$(error Unsupported platform: $(SYS))
+endif
+endif
+
+# Set SGX=1 to build Graphene for SGX
+ifeq ($(SGX)$(SGX_RUN),11)
+	$(error "Do not use SGX=1 and SGX_RUN=1 at the same time")
+endif
+ifeq ($(SGX)$(SGX_RUN),1)
+	OS := $(patsubst %-SGX,%,$(OS))-SGX
+endif
+
+ifeq ($(findstring $(OS),$(all_hosts)),)
+$(error Unsupported platform: $(OS))
+endif
+
+export OS
+export OS_MACRO = $(shell echo $(OS) | tr '[:lower:]' '[:upper:]' | tr '-' '_')
