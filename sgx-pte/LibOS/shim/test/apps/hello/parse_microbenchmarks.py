@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import re
+from pprint import pprint
 
 INFILE          = 'measurements_raw.txt'
 OUTFILE         = 'measurements.txt'
@@ -15,7 +16,8 @@ nz = 0
 
 with open(INFILE, 'r') as fi, open(OUTFILE, 'w') as fo:
     for l in fi.readlines():
-        m = re.search('offset=0x([0-9A-Fa-f]+)', l)
+#        m = re.search('offset=0x([0-9A-Fa-f]+)', l)
+        m = re.search('0x([0-9A-Fa-f]+)', l)
         if m:
             i = int(m.groups()[0], base=16) / INST_LEN
             if i < THRESHOLD:
@@ -26,3 +28,4 @@ with open(INFILE, 'r') as fi, open(OUTFILE, 'w') as fo:
                 print('parse.py: filtering outlier {0}'.format(i))
 
 print("parse.py: non-zero count={0}".format(nz))
+

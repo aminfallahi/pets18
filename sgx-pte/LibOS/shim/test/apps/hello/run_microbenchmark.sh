@@ -3,7 +3,7 @@
 sudo sh -c "echo 200000 > /sys/kernel/debug/tracing/buffer_size_kb"
 sudo sh -c "echo '' > /sys/kernel/debug/tracing/trace"
 
-../pal_loader helloworld 0xbeef
+../pal_loader helloworld 0xfeeb
 sudo cat /sys/kernel/debug/tracing/trace > measurements_raw.txt
 dmesg | tail
 

@@ -232,7 +232,7 @@ void ipi_handler(void)
     //XXX ignore IPI on non-enclave CPUs
     if (ipi_init_info.victim_cpu != me)
     {
-        pr_warn("gsgx-victim: ignoring IPI on non-enclave CPU %d...\n", me);
+//        pr_warn("gsgx-victim: ignoring IPI on non-enclave CPU %d...\n", me);
         return;
     }
 

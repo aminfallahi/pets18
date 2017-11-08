@@ -98,12 +98,12 @@ int main(int argc, char ** argv)
 
     printf("asm_microbenchmark returned %d\n", rv);
 
-#if 0
+#if 1
     printf("calling do_square_multiply..\n");
     do_square_multiply(in);
     
     /* Custom system call to intra-enclave libOS. */
-    int rv = syscall(SYSDUMP, 0xbeef);
+    /*int*/ rv = syscall(SYSDUMP, 0xfeeb);
     printf("SYSDUMP returned %d\n", rv);
 
     puts("accessing &a and &b");
