@@ -2,27 +2,25 @@
 #include <string.h>
 #include <assert.h>
 
-# include <unistd.h>
-# include <pwd.h>
-# define MAX_PATH FILENAME_MAX
+#include <unistd.h>
+#include <pwd.h>
+#define MAX_PATH FILENAME_MAX
 
 #include "sgx_urts.h"
 //#include "sgx_status.h"
 #include "App.h"
 #include "Enclave_u.h"
 
-int ecall_foo1(int i)
-{
+int ecall_foo1(int i) {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
     int retval;
     ret = ecall_foo(global_eid, &retval, i);
     ret = ecall_amin(global_eid, &retval, i);
-	int j,*a;
-	a=(int*)malloc(sizeof(int)*10000);
-	for (j=0; j<100; j++)
-		a[j]=j;
-	ecall_shuffle(global_eid,(void*)a,100);
-printf("%d",a[0]);
+    int j, *a;
+    a = (int*) malloc(sizeof (int)*10000);
+    for (j = 0; j < 100; j++)
+        a[j] = j;
+    ecall_shuffle(global_eid, (void*) a, 100);
     if (ret != SGX_SUCCESS)
         abort();
 
@@ -123,20 +121,19 @@ static sgx_errlist_t sgx_errlist[] = {
 };
 
 /* Check error conditions for loading enclave */
-void print_error_message(sgx_status_t ret)
-{
+void print_error_message(sgx_status_t ret) {
     size_t idx = 0;
-    size_t ttl = sizeof sgx_errlist/sizeof sgx_errlist[0];
+    size_t ttl = sizeof sgx_errlist / sizeof sgx_errlist[0];
 
     for (idx = 0; idx < ttl; idx++) {
-        if(ret == sgx_errlist[idx].err) {
-            if(NULL != sgx_errlist[idx].sug)
+        if (ret == sgx_errlist[idx].err) {
+            if (NULL != sgx_errlist[idx].sug)
                 printf("Info: %s\n", sgx_errlist[idx].sug);
             printf("Error: %s\n", sgx_errlist[idx].msg);
             break;
         }
     }
-    
+
     if (idx == ttl)
         printf("Error: Unexpected error occurred.\n");
 }
@@ -146,28 +143,27 @@ void print_error_message(sgx_status_t ret)
  *   Step 2: call sgx_create_enclave to initialize an enclave instance
  *   Step 3: save the launch token if it is updated
  */
-int initialize_enclave(void)
-{
+int initialize_enclave(void) {
     char token_path[MAX_PATH] = {'\0'};
     sgx_launch_token_t token = {0};
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
     int updated = 0;
-    
+
     /* Step 1: retrive the launch token saved by last transaction */
 
-/* __GNUC__ */
+    /* __GNUC__ */
     /* try to get the token saved in $HOME */
     const char *home_dir = getpwuid(getuid())->pw_dir;
-    
-    if (home_dir != NULL && 
-        (strlen(home_dir)+strlen("/")+sizeof(TOKEN_FILENAME)+1) <= MAX_PATH) {
+
+    if (home_dir != NULL &&
+            (strlen(home_dir) + strlen("/") + sizeof (TOKEN_FILENAME) + 1) <= MAX_PATH) {
         /* compose the token path */
         strncpy(token_path, home_dir, strlen(home_dir));
         strncat(token_path, "/", strlen("/"));
-        strncat(token_path, TOKEN_FILENAME, sizeof(TOKEN_FILENAME)+1);
+        strncat(token_path, TOKEN_FILENAME, sizeof (TOKEN_FILENAME) + 1);
     } else {
         /* if token path is too long or $HOME is NULL */
-        strncpy(token_path, TOKEN_FILENAME, sizeof(TOKEN_FILENAME));
+        strncpy(token_path, TOKEN_FILENAME, sizeof (TOKEN_FILENAME));
     }
 
     FILE *fp = fopen(token_path, "rb");
@@ -177,10 +173,10 @@ int initialize_enclave(void)
 
     if (fp != NULL) {
         /* read the token from saved file */
-        size_t read_num = fread(token, 1, sizeof(sgx_launch_token_t), fp);
-        if (read_num != 0 && read_num != sizeof(sgx_launch_token_t)) {
+        size_t read_num = fread(token, 1, sizeof (sgx_launch_token_t), fp);
+        if (read_num != 0 && read_num != sizeof (sgx_launch_token_t)) {
             /* if token is invalid, clear the buffer */
-            memset(&token, 0x0, sizeof(sgx_launch_token_t));
+            memset(&token, 0x0, sizeof (sgx_launch_token_t));
             printf("Warning: Invalid launch token read from \"%s\".\n", token_path);
         }
     }
@@ -195,7 +191,7 @@ int initialize_enclave(void)
     }
 
     /* Step 3: save the launch token if it is updated */
-/* __GNUC__ */
+    /* __GNUC__ */
     if (updated == FALSE || fp == NULL) {
         /* if the token is not updated, or file handler is invalid, do not perform saving */
         if (fp != NULL) fclose(fp);
@@ -205,16 +201,15 @@ int initialize_enclave(void)
     /* reopen the file with write capablity */
     fp = freopen(token_path, "wb", fp);
     if (fp == NULL) return 0;
-    size_t write_num = fwrite(token, 1, sizeof(sgx_launch_token_t), fp);
-    if (write_num != sizeof(sgx_launch_token_t))
+    size_t write_num = fwrite(token, 1, sizeof (sgx_launch_token_t), fp);
+    if (write_num != sizeof (sgx_launch_token_t))
         printf("Warning: Failed to save launch token to \"%s\".\n", token_path);
     fclose(fp);
     return 0;
 }
 
 /* OCall functions */
-void ocall_bar(const char *str, int ret[1])
-{
+void ocall_bar(const char *str, int ret[1]) {
     /* Proxy/Bridge will check the length and null-terminate 
      * the input string to prevent buffer overflow. 
      */
@@ -222,33 +217,31 @@ void ocall_bar(const char *str, int ret[1])
     ret[0] = 13;
 }
 
-void ocall_tlbShootdown()
-{
-	pid_t p;
-	fork();
-	if (p==0);
+void ocall_tlbShootdown() {
+    pid_t p;
+    fork();
+    if (p == 0);
 }
 
 /* Application entry */
-int SGX_CDECL main(int argc, char *argv[])
-{
-    int i = 3;
+int SGX_CDECL main(int argc, char *argv[]) {
     /* Initialize the enclave */
-printf("a\n");
-    if(initialize_enclave() < 0){printf("Error enclave and exit\n");return -1;}
-printf("b\n");
- 
+    if (initialize_enclave() < 0) {
+        printf("Error enclave and exit\n");
+        return -1;
+    }
+
     /* Utilize edger8r attributes */
     edger8r_function_attributes();
-    
-printf("c\n");
+
     /* Utilize trusted libraries */
-int retval;
-    retval=ecall_foo1(i);
-printf("retval: %d\n", retval);
+    int retval,i;
+    retval = ecall_foo1(i);
+    printf("retval: %d\n", retval);
     /* Destroy the enclave */
     sgx_destroy_enclave(global_eid);
     printf("Info: SampleEnclave successfully returned.\n");
     return 0;
 }
+
 
