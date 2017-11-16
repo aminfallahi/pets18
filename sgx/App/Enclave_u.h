@@ -27,6 +27,8 @@ sgx_status_t ecall_foo(sgx_enclave_id_t eid, int* retval, int i);
 sgx_status_t ecall_amin(sgx_enclave_id_t eid, int* retval, int i);
 sgx_status_t ecall_shuffle(sgx_enclave_id_t eid, void* arr, int size);
 sgx_status_t ecall_chAddress(sgx_enclave_id_t eid, int** retval, void* a);
+sgx_status_t ecall_array_access(sgx_enclave_id_t eid, int* retval, void* array, int index);
+sgx_status_t arrayAccessAsm(sgx_enclave_id_t eid, int* O, int* I, int L);
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf);
 
 #ifdef __cplusplus

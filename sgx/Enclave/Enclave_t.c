@@ -38,6 +38,18 @@ typedef struct ms_ecall_chAddress_t {
 	void* ms_a;
 } ms_ecall_chAddress_t;
 
+typedef struct ms_ecall_array_access_t {
+	int ms_retval;
+	void* ms_array;
+	int ms_index;
+} ms_ecall_array_access_t;
+
+typedef struct ms_arrayAccessAsm_t {
+	int* ms_O;
+	int* ms_I;
+	int ms_L;
+} ms_arrayAccessAsm_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -125,6 +137,35 @@ static sgx_status_t SGX_CDECL sgx_ecall_chAddress(void* pms)
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_ecall_array_access(void* pms)
+{
+	ms_ecall_array_access_t* ms = SGX_CAST(ms_ecall_array_access_t*, pms);
+	sgx_status_t status = SGX_SUCCESS;
+	void* _tmp_array = ms->ms_array;
+
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_array_access_t));
+
+	ms->ms_retval = ecall_array_access(_tmp_array, ms->ms_index);
+
+
+	return status;
+}
+
+static sgx_status_t SGX_CDECL sgx_arrayAccessAsm(void* pms)
+{
+	ms_arrayAccessAsm_t* ms = SGX_CAST(ms_arrayAccessAsm_t*, pms);
+	sgx_status_t status = SGX_SUCCESS;
+	int* _tmp_O = ms->ms_O;
+	int* _tmp_I = ms->ms_I;
+
+	CHECK_REF_POINTER(pms, sizeof(ms_arrayAccessAsm_t));
+
+	arrayAccessAsm(_tmp_O, _tmp_I, ms->ms_L);
+
+
+	return status;
+}
+
 static sgx_status_t SGX_CDECL sgx_ecall_sgx_cpuid(void* pms)
 {
 	ms_ecall_sgx_cpuid_t* ms = SGX_CAST(ms_ecall_sgx_cpuid_t*, pms);
@@ -157,29 +198,31 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[6];
+	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[8];
 } g_ecall_table = {
-	6,
+	8,
 	{
 		{(void*)(uintptr_t)sgx_ecall_function_calling_convs, 0},
 		{(void*)(uintptr_t)sgx_ecall_foo, 0},
 		{(void*)(uintptr_t)sgx_ecall_amin, 0},
 		{(void*)(uintptr_t)sgx_ecall_shuffle, 0},
 		{(void*)(uintptr_t)sgx_ecall_chAddress, 0},
+		{(void*)(uintptr_t)sgx_ecall_array_access, 0},
+		{(void*)(uintptr_t)sgx_arrayAccessAsm, 0},
 		{(void*)(uintptr_t)sgx_ecall_sgx_cpuid, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[4][6];
+	uint8_t entry_table[4][8];
 } g_dyn_entry_table = {
 	4,
 	{
-		{0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

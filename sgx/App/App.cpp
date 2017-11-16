@@ -10,13 +10,18 @@
 //#include "sgx_status.h"
 #include "App.h"
 #include "Enclave_u.h"
+#include <time.h>
 
 int ecall_foo1(int i) {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
     int retval;
-    ret = ecall_foo(global_eid, &retval, i);
-    ret = ecall_amin(global_eid, &retval, i);
-    int j, *a;
+//    ret = ecall_foo(global_eid, &retval, i);
+//    ret = ecall_amin(global_eid, &retval, 100);
+    int *a=(int*)malloc(sizeof(int)*128);
+for (i=0; i<128; i++) a[i]=rand()%10;
+ret= ecall_array_access(global_eid,&retval,(void*)a,2);
+printf("retete %d\n",retval);
+/*    int j, *a;
     a = (int*) malloc(sizeof (int)*10000);
     for (j = 0; j < 100; j++)
         a[j] = j;
@@ -27,7 +32,7 @@ int ecall_foo1(int i) {
     int cpuid[4] = {0x1, 0x0, 0x0, 0x0};
     ret = ecall_sgx_cpuid(global_eid, cpuid, 0x0);
     if (ret != SGX_SUCCESS)
-        abort();
+        abort();*/
     return retval;
 }
 
@@ -225,9 +230,10 @@ void ocall_tlbShootdown() {
 
 /* Application entry */
 int SGX_CDECL main(int argc, char *argv[]) {
+srand(time(NULL));
     /* Initialize the enclave */
     if (initialize_enclave() < 0) {
-        printf("Error enclave and exit\n");
+//        printf("Error enclave and exit\n");
         return -1;
     }
 
@@ -237,10 +243,10 @@ int SGX_CDECL main(int argc, char *argv[]) {
     /* Utilize trusted libraries */
     int retval,i;
     retval = ecall_foo1(i);
-    printf("retval: %d\n", retval);
+//    printf("retval: %d\n", retval);
     /* Destroy the enclave */
     sgx_destroy_enclave(global_eid);
-    printf("Info: SampleEnclave successfully returned.\n");
+//    printf("Info: SampleEnclave successfully returned.\n");
     return 0;
 }
 

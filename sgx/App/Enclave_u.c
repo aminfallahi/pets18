@@ -22,6 +22,18 @@ typedef struct ms_ecall_chAddress_t {
 	void* ms_a;
 } ms_ecall_chAddress_t;
 
+typedef struct ms_ecall_array_access_t {
+	int ms_retval;
+	void* ms_array;
+	int ms_index;
+} ms_ecall_array_access_t;
+
+typedef struct ms_arrayAccessAsm_t {
+	int* ms_O;
+	int* ms_I;
+	int ms_L;
+} ms_arrayAccessAsm_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -137,13 +149,35 @@ sgx_status_t ecall_chAddress(sgx_enclave_id_t eid, int** retval, void* a)
 	return status;
 }
 
+sgx_status_t ecall_array_access(sgx_enclave_id_t eid, int* retval, void* array, int index)
+{
+	sgx_status_t status;
+	ms_ecall_array_access_t ms;
+	ms.ms_array = array;
+	ms.ms_index = index;
+	status = sgx_ecall(eid, 5, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
+sgx_status_t arrayAccessAsm(sgx_enclave_id_t eid, int* O, int* I, int L)
+{
+	sgx_status_t status;
+	ms_arrayAccessAsm_t ms;
+	ms.ms_O = O;
+	ms.ms_I = I;
+	ms.ms_L = L;
+	status = sgx_ecall(eid, 6, &ocall_table_Enclave, &ms);
+	return status;
+}
+
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 {
 	sgx_status_t status;
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 5, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
 	return status;
 }
 

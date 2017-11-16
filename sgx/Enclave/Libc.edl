@@ -17,6 +17,8 @@ enclave {
         public int ecall_amin(int i);
         public void ecall_shuffle([user_check]void* arr, int size);
 	public int* ecall_chAddress([user_check]void* a);
+	public int ecall_array_access([user_check]void* array, int index);
+	public void arrayAccessAsm([user_check]int* O, [user_check]int *I, int L);
 
 
         /*

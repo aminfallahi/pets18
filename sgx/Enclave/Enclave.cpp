@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>      /* vsnprintf */
 
@@ -9,6 +10,8 @@
 #include "Enclave_t.h"  /* bar*/
 
 #include <math.h>
+
+
 /* 
  * printf: 
  *   Invokes OCALL to display the enclave buffer to the terminal.
@@ -40,13 +43,22 @@ int ecall_foo(int i) {
 }
 
 int ecall_amin(int i) {
+//ocall_tlbShootdown();
     void *ptr = malloc(100);
     assert(ptr != NULL);
     memset(ptr, 0x0, 100);
     free(ptr);
 
-    int ret = bar1("calling ocall_bar with: %d\n", 23);
-    bar1("ocall_bar returns: %d\n", ret);
+int a[1000];
+for (i=0; i<1000; i++)
+	a[i]=i;
+for (i=0; i<1000; i+=2){
+	ocall_tlbShootdown();
+	int c=a[i];
+	a[i]=a[i+1];
+	a[i+1]=c;
+}
+	while (i>0) i/=2;
 
     return i + 1;
 }
@@ -147,3 +159,27 @@ void ecall_sgx_cpuid(int cpuinfo[4], int leaf) {
         abort();
 }
 
+
+int ecall_array_access(void *arr, int index)
+{
+	int *_arr=(int*)arr;
+	int *out=(int*)malloc(sizeof(int)*8);
+	int i,j;
+	for (i=index, j=0; j<8; j++,i+=8)
+		out[j]=i;
+	arrayAccessAsm(out,_arr,128);
+	return /*out[index/8+1]*/1;
+}
+
+void arrayAccessAsm(int* O, int *I, int L){
+	//__m128i _mm_cmpeq_epi32 ( __m128i a, __m128i b)
+//	__m128i sse_pi = _mm_load_si128((__m128i*)O);
+    __asm__(
+            "mov $0,%rdx\n\t"
+            "vpcmpeqd %ymm0,%ymm0,%ymm0\n\t"
+            "vmovups  (%rdi,%rdx,4),%ymm1 ;\n\t"
+//            "VPGATHERDD %ymm0,(%rsi,%ymm1,4),%ymm2\n\t"
+//            "vmovups %ymm1,(%rdi,%rdx,4)\n\t"
+//            "vzeroall\n\t"
+    );
+}
