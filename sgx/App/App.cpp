@@ -18,8 +18,8 @@ int ecall_foo1(int i) {
 //    ret = ecall_foo(global_eid, &retval, i);
 //    ret = ecall_amin(global_eid, &retval, 100);
     int *a=(int*)malloc(sizeof(int)*128);
-for (i=0; i<128; i++) a[i]=rand()%10;
-ret= ecall_array_access(global_eid,&retval,(void*)a,2);
+for (i=0; i<128; i++) a[i]=i;
+ret= ecall_intAccess(global_eid,&retval,&a[0],50,128);
 printf("retete %d\n",retval);
 /*    int j, *a;
     a = (int*) malloc(sizeof (int)*10000);

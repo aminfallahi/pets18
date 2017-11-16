@@ -24,6 +24,7 @@ void ecall_shuffle(void* arr, int size);
 int* ecall_chAddress(void* a);
 int ecall_array_access(void* array, int index);
 void arrayAccessAsm(int* O, int* I, int L);
+int ecall_intAccess(void* in, int index, int size);
 void ecall_sgx_cpuid(int cpuinfo[4], int leaf);
 
 sgx_status_t SGX_CDECL ocall_bar(const char* str, int ret[1]);

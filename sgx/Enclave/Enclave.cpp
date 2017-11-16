@@ -11,7 +11,6 @@
 
 #include <math.h>
 
-
 /* 
  * printf: 
  *   Invokes OCALL to display the enclave buffer to the terminal.
@@ -183,3 +182,14 @@ void arrayAccessAsm(int* O, int *I, int L){
 //            "vzeroall\n\t"
     );
 }
+
+int ecall_intAccess(void * in, int index, int size){
+	int *arr=(int*)in;
+	int r,i;
+	for (i=0; i<8; i++){
+	        sgx_read_rand((unsigned char *) &r, sizeof (int));
+		*(arr+r%size);
+	}
+	return *(arr+index);
+}
+

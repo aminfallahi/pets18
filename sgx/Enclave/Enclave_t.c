@@ -50,6 +50,13 @@ typedef struct ms_arrayAccessAsm_t {
 	int ms_L;
 } ms_arrayAccessAsm_t;
 
+typedef struct ms_ecall_intAccess_t {
+	int ms_retval;
+	void* ms_in;
+	int ms_index;
+	int ms_size;
+} ms_ecall_intAccess_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -166,6 +173,20 @@ static sgx_status_t SGX_CDECL sgx_arrayAccessAsm(void* pms)
 	return status;
 }
 
+static sgx_status_t SGX_CDECL sgx_ecall_intAccess(void* pms)
+{
+	ms_ecall_intAccess_t* ms = SGX_CAST(ms_ecall_intAccess_t*, pms);
+	sgx_status_t status = SGX_SUCCESS;
+	void* _tmp_in = ms->ms_in;
+
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_intAccess_t));
+
+	ms->ms_retval = ecall_intAccess(_tmp_in, ms->ms_index, ms->ms_size);
+
+
+	return status;
+}
+
 static sgx_status_t SGX_CDECL sgx_ecall_sgx_cpuid(void* pms)
 {
 	ms_ecall_sgx_cpuid_t* ms = SGX_CAST(ms_ecall_sgx_cpuid_t*, pms);
@@ -198,9 +219,9 @@ err:
 
 SGX_EXTERNC const struct {
 	size_t nr_ecall;
-	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[8];
+	struct {void* ecall_addr; uint8_t is_priv;} ecall_table[9];
 } g_ecall_table = {
-	8,
+	9,
 	{
 		{(void*)(uintptr_t)sgx_ecall_function_calling_convs, 0},
 		{(void*)(uintptr_t)sgx_ecall_foo, 0},
@@ -209,20 +230,21 @@ SGX_EXTERNC const struct {
 		{(void*)(uintptr_t)sgx_ecall_chAddress, 0},
 		{(void*)(uintptr_t)sgx_ecall_array_access, 0},
 		{(void*)(uintptr_t)sgx_arrayAccessAsm, 0},
+		{(void*)(uintptr_t)sgx_ecall_intAccess, 0},
 		{(void*)(uintptr_t)sgx_ecall_sgx_cpuid, 0},
 	}
 };
 
 SGX_EXTERNC const struct {
 	size_t nr_ocall;
-	uint8_t entry_table[4][8];
+	uint8_t entry_table[4][9];
 } g_dyn_entry_table = {
 	4,
 	{
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
-		{0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, },
 	}
 };
 

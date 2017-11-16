@@ -34,6 +34,13 @@ typedef struct ms_arrayAccessAsm_t {
 	int ms_L;
 } ms_arrayAccessAsm_t;
 
+typedef struct ms_ecall_intAccess_t {
+	int ms_retval;
+	void* ms_in;
+	int ms_index;
+	int ms_size;
+} ms_ecall_intAccess_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -171,13 +178,25 @@ sgx_status_t arrayAccessAsm(sgx_enclave_id_t eid, int* O, int* I, int L)
 	return status;
 }
 
+sgx_status_t ecall_intAccess(sgx_enclave_id_t eid, int* retval, void* in, int index, int size)
+{
+	sgx_status_t status;
+	ms_ecall_intAccess_t ms;
+	ms.ms_in = in;
+	ms.ms_index = index;
+	ms.ms_size = size;
+	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
+	if (status == SGX_SUCCESS && retval) *retval = ms.ms_retval;
+	return status;
+}
+
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 {
 	sgx_status_t status;
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 7, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 8, &ocall_table_Enclave, &ms);
 	return status;
 }
 
