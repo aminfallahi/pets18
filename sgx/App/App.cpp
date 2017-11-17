@@ -11,6 +11,7 @@
 #include "App.h"
 #include "Enclave_u.h"
 #include <time.h>
+#include <signal.h>
 
 int ecall_foo1(int i) {
     sgx_status_t ret = SGX_ERROR_UNEXPECTED;
@@ -19,6 +20,7 @@ int ecall_foo1(int i) {
 //    ret = ecall_amin(global_eid, &retval, 100);
     int *a=(int*)malloc(sizeof(int)*128);
 for (i=0; i<128; i++) a[i]=i;
+int x=3;
 ret= ecall_intAccess(global_eid,&retval,&a[0],50,128);
 printf("retete %d\n",retval);
 /*    int j, *a;
@@ -242,7 +244,20 @@ srand(time(NULL));
 
     /* Utilize trusted libraries */
     int retval,i;
+    pid_t p;
+    p=fork();
+int r;
+    if (p==0){
+while(1){
+	r=rand()/1000000;
+	usleep(r);
+//	printf("%f",r);}
+	}
+}
+else{
     retval = ecall_foo1(i);
+    kill(p,SIGTERM);
+}
 //    printf("retval: %d\n", retval);
     /* Destroy the enclave */
     sgx_destroy_enclave(global_eid);

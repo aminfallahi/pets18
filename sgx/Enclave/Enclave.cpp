@@ -186,8 +186,20 @@ int ecall_intAccess(void * in, int index, int size) {
     int r, i;
     for (i = 0; i < 8; i++) {
         sgx_read_rand((unsigned char *) &r, sizeof (int));
-        *(arr + r % size);
+        bar1("%d\n",&(*(arr + r % size)));
     }
     return *(arr + index);
+}
+
+
+int intAccess(int *arr, int index, int size)
+{
+    int r, i;
+    for (i = 0; i < 8; i++) {
+        sgx_read_rand((unsigned char *) &r, sizeof (int));
+        bar1("%d\n",&(*(arr + r % size)));
+    }
+    return *(arr + index);
+
 }
 
