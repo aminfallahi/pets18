@@ -13,17 +13,34 @@
 #include <time.h>
 #include <signal.h>
 
+
 int ecall_foo1(int i)
 {
 	sgx_status_t ret = SGX_ERROR_UNEXPECTED;
 	int retval;
+	int index;
+	int arrsize=100000;
+	int* a=(int*)malloc(sizeof(int)*arrsize);
+	for (index=0; index<arrsize; index++){
+		a[index]=rand()%arrsize;
+//		printf("%d ",a[index]);
+	}
+clock_t begin = clock();
+        ecall_shuffle(global_eid,(void*)a,arrsize);
+	ecall_mergeSort(global_eid,(void*)a,0,arrsize-1);
+clock_t end = clock();
+double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	printf("%lf",time_spent);
+//	for (index=0; index<100000; index++)
+//		printf("%d ",a[index]);
+
 	//    ret = ecall_foo(global_eid, &retval, i);
 	//    ret = ecall_amin(global_eid, &retval, 100);
-	int *a = (int*) malloc(sizeof(int)*128);
+/*	int *a = (int*) malloc(sizeof(int)*128);
 	for (i = 0; i < 128; i++) a[i] = i;
 	int x = 3;
 	ret = ecall_intAccess(global_eid, &retval, &a[0], 50, 128);
-	printf("retete %d\n", retval);
+	printf("retete %d\n", retval);*/
 	/*    int j, *a;
 	    a = (int*) malloc(sizeof (int)*10000);
 	    for (j = 0; j < 100; j++)
@@ -38,6 +55,11 @@ int ecall_foo1(int i)
 		abort();*/
 	return retval;
 }
+
+
+
+
+
 
 
 /* Global EID shared by multiple threads */
@@ -231,8 +253,9 @@ void ocall_bar(const char *str, int ret[1])
 void ocall_tlbShootdown()
 {
 	pid_t p;
-	fork();
-	if (p == 0);
+	p=fork();
+	//if (p == 0);
+	kill(p,SIGKILL);
 }
 
 /* Application entry */
@@ -250,7 +273,8 @@ int SGX_CDECL main(int argc, char *argv[])
 
 	/* Utilize trusted libraries */
 	int retval, i;
-	pid_t p;
+	retval=ecall_foo1(i);
+/*	pid_t p;
 	p = fork();
 	int r;
 	if (p == 0) {
@@ -262,7 +286,7 @@ int SGX_CDECL main(int argc, char *argv[])
 	} else {
 		retval = ecall_foo1(i);
 		kill(p, SIGTERM);
-	}
+	}*/
 	//    printf("retval: %d\n", retval);
 	/* Destroy the enclave */
 	sgx_destroy_enclave(global_eid);

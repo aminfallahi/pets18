@@ -69,14 +69,14 @@ void ecall_shuffle(void* arr, int size)
 {
 	//ocall_tlbShootdown();
 	int *tmp = (int*) arr;
-	int *p = (int*) malloc(size * size * sizeof(int));
+	int *p = (int*) malloc(size * sizeof(int));
 	int i, j, k, c;
 	for (i = 0; i < size; i++) {
 		sgx_read_rand((unsigned char *) &c, sizeof(int));
 		p[i] = c % size;
 	}
 	//Bubblesort
-	/*
+/*	
 		for (i=0; i<size-1; i++)
 			for (j=0; j<size-i-1; j++)
 				if (p[j]<p[j+1]){
@@ -193,9 +193,9 @@ int ecall_intAccess(void * in, int index, int size)
 {
 	int *arr = (int*) in;
 	int r, i;
-	for (i = 0; i < 8; i++) {
+	for (i = 0; i < log2(size); i++) {
 		sgx_read_rand((unsigned char *) &r, sizeof(int));
-		bar1("%d\n", &(*(arr + r % size)));
+//		bar1("%d\n", &(*(arr + r % size)));
 	}
 	return *(arr + index);
 }
@@ -211,3 +211,82 @@ int intAccess(int *arr, int index, int size)
 
 }
 
+// Merges two subarrays of arr[].
+// First subarray is arr[l..m]
+// Second subarray is arr[m+1..r]
+void merge(int arr[], int l, int m, int r)
+{
+    int i, j, k;
+    int n1 = m - l + 1;
+    int n2 =  r - m;
+ 
+    /* create temp arrays */
+    int L[n1], R[n2];
+ 
+    /* Copy data to temp arrays L[] and R[] */
+    for (i = 0; i < n1; i++)
+        L[i] = ecall_intAccess((void*)arr,l+i,n1);//arr[l + i];
+    for (j = 0; j < n2; j++)
+        R[j] = ecall_intAccess((void*)arr,m+1+j,n2);//arr[m + 1+ j];
+ 
+    /* Merge the temp arrays back into arr[l..r]*/
+    i = 0; // Initial index of first subarray
+    j = 0; // Initial index of second subarray
+    k = l; // Initial index of merged subarray
+    while (i < n1 && j < n2)
+    {
+        if (L[i]<=R[j])
+        {
+            arr[k] = L[i];
+            i++;
+        }
+        else
+        {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+ 
+    /* Copy the remaining elements of L[], if there
+       are any */
+    while (i < n1)
+    {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+ 
+    /* Copy the remaining elements of R[], if there
+       are any */
+    while (j < n2)
+    {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}
+ 
+/* l is for left index and r is right index of the
+   sub-array of arr to be sorted */
+void ecall_mergeSort(void* _arr,int l,int r)
+{
+    int* arr=(int*)malloc(sizeof(int)*(r-l+1));
+    int c;
+    arr=(int*)_arr;
+    if (l < r)
+    {
+	sgx_read_rand((unsigned char *) &c, sizeof(int));
+        if (c%1000==0) ocall_tlbShootdown();
+        // Same as (l+r)/2, but avoids overflow for
+        // large l and h
+        int m = l+(r-l)/2;
+ 
+        // Sort first and second halves
+        ecall_mergeSort((void*)arr, l, m);
+        ecall_mergeSort((void*)arr, m+1, r);
+ 
+        merge(arr, l, m, r);
+    }
+}
+ 

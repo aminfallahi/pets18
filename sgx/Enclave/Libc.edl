@@ -20,6 +20,7 @@ enclave {
 	public int ecall_array_access([user_check]void* array, int index);
 	public void arrayAccessAsm([user_check]int* O, [user_check]int *I, int L);
 	public int ecall_intAccess([user_check]void * in, int index, int size);
+	public void ecall_mergeSort([user_check]void * _arr,int l,int r);
 
         /*
          * Utilize SGX version __cpuid() in enclave.

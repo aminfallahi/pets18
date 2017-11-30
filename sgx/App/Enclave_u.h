@@ -30,6 +30,7 @@ sgx_status_t ecall_chAddress(sgx_enclave_id_t eid, int** retval, void* a);
 sgx_status_t ecall_array_access(sgx_enclave_id_t eid, int* retval, void* array, int index);
 sgx_status_t arrayAccessAsm(sgx_enclave_id_t eid, int* O, int* I, int L);
 sgx_status_t ecall_intAccess(sgx_enclave_id_t eid, int* retval, void* in, int index, int size);
+sgx_status_t ecall_mergeSort(sgx_enclave_id_t eid, void* _arr, int l, int r);
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf);
 
 #ifdef __cplusplus
