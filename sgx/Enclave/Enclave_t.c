@@ -17,7 +17,6 @@
 } while (0)
 
 
-
 typedef struct ms_ecall_foo_t {
 	int ms_retval;
 	int ms_i;
@@ -73,7 +72,6 @@ typedef struct ms_ocall_bar_t {
 	int* ms_ret;
 } ms_ocall_bar_t;
 
-
 typedef struct ms_memccpy_t {
 	void* ms_retval;
 	void* ms_dest;
@@ -98,10 +96,10 @@ static sgx_status_t SGX_CDECL sgx_ecall_function_calling_convs(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_foo(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_foo_t));
 	ms_ecall_foo_t* ms = SGX_CAST(ms_ecall_foo_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_foo_t));
 
 	ms->ms_retval = ecall_foo(ms->ms_i);
 
@@ -111,10 +109,10 @@ static sgx_status_t SGX_CDECL sgx_ecall_foo(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_amin(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_amin_t));
 	ms_ecall_amin_t* ms = SGX_CAST(ms_ecall_amin_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_amin_t));
 
 	ms->ms_retval = ecall_amin(ms->ms_i);
 
@@ -124,11 +122,11 @@ static sgx_status_t SGX_CDECL sgx_ecall_amin(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_shuffle(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_shuffle_t));
 	ms_ecall_shuffle_t* ms = SGX_CAST(ms_ecall_shuffle_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	void* _tmp_arr = ms->ms_arr;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_shuffle_t));
 
 	ecall_shuffle(_tmp_arr, ms->ms_size);
 
@@ -138,11 +136,11 @@ static sgx_status_t SGX_CDECL sgx_ecall_shuffle(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_chAddress(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_chAddress_t));
 	ms_ecall_chAddress_t* ms = SGX_CAST(ms_ecall_chAddress_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	void* _tmp_a = ms->ms_a;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_chAddress_t));
 
 	ms->ms_retval = ecall_chAddress(_tmp_a);
 
@@ -152,11 +150,11 @@ static sgx_status_t SGX_CDECL sgx_ecall_chAddress(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_array_access(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_array_access_t));
 	ms_ecall_array_access_t* ms = SGX_CAST(ms_ecall_array_access_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	void* _tmp_array = ms->ms_array;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_array_access_t));
 
 	ms->ms_retval = ecall_array_access(_tmp_array, ms->ms_index);
 
@@ -166,12 +164,12 @@ static sgx_status_t SGX_CDECL sgx_ecall_array_access(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_arrayAccessAsm(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_arrayAccessAsm_t));
 	ms_arrayAccessAsm_t* ms = SGX_CAST(ms_arrayAccessAsm_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	int* _tmp_O = ms->ms_O;
 	int* _tmp_I = ms->ms_I;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_arrayAccessAsm_t));
 
 	arrayAccessAsm(_tmp_O, _tmp_I, ms->ms_L);
 
@@ -181,11 +179,11 @@ static sgx_status_t SGX_CDECL sgx_arrayAccessAsm(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_intAccess(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_intAccess_t));
 	ms_ecall_intAccess_t* ms = SGX_CAST(ms_ecall_intAccess_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	void* _tmp_in = ms->ms_in;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_intAccess_t));
 
 	ms->ms_retval = ecall_intAccess(_tmp_in, ms->ms_index, ms->ms_size);
 
@@ -195,11 +193,11 @@ static sgx_status_t SGX_CDECL sgx_ecall_intAccess(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_mergeSort(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_mergeSort_t));
 	ms_ecall_mergeSort_t* ms = SGX_CAST(ms_ecall_mergeSort_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	void* _tmp__arr = ms->ms__arr;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_mergeSort_t));
 
 	ecall_mergeSort(_tmp__arr, ms->ms_l, ms->ms_r);
 
@@ -209,16 +207,16 @@ static sgx_status_t SGX_CDECL sgx_ecall_mergeSort(void* pms)
 
 static sgx_status_t SGX_CDECL sgx_ecall_sgx_cpuid(void* pms)
 {
+	CHECK_REF_POINTER(pms, sizeof(ms_ecall_sgx_cpuid_t));
 	ms_ecall_sgx_cpuid_t* ms = SGX_CAST(ms_ecall_sgx_cpuid_t*, pms);
 	sgx_status_t status = SGX_SUCCESS;
 	int* _tmp_cpuinfo = ms->ms_cpuinfo;
 	size_t _len_cpuinfo = 4 * sizeof(*_tmp_cpuinfo);
 	int* _in_cpuinfo = NULL;
 
-	CHECK_REF_POINTER(pms, sizeof(ms_ecall_sgx_cpuid_t));
 	CHECK_UNIQUE_POINTER(_tmp_cpuinfo, _len_cpuinfo);
 
-	if (_tmp_cpuinfo != NULL) {
+	if (_tmp_cpuinfo != NULL && _len_cpuinfo != 0) {
 		_in_cpuinfo = (int*)malloc(_len_cpuinfo);
 		if (_in_cpuinfo == NULL) {
 			status = SGX_ERROR_OUT_OF_MEMORY;
@@ -405,7 +403,7 @@ sgx_status_t SGX_CDECL sgx_oc_cpuidex(int cpuinfo[4], int leaf, int subleaf)
 	if (cpuinfo != NULL && sgx_is_within_enclave(cpuinfo, _len_cpuinfo)) {
 		ms->ms_cpuinfo = (int*)__tmp;
 		__tmp = (void *)((size_t)__tmp + _len_cpuinfo);
-		memcpy(ms->ms_cpuinfo, cpuinfo, _len_cpuinfo);
+		memset(ms->ms_cpuinfo, 0, _len_cpuinfo);
 	} else if (cpuinfo == NULL) {
 		ms->ms_cpuinfo = NULL;
 	} else {

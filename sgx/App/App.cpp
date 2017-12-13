@@ -12,6 +12,7 @@
 #include "Enclave_u.h"
 #include <time.h>
 #include <signal.h>
+#include <immintrin.h>
 
 
 int ecall_foo1(int i)
@@ -21,10 +22,21 @@ int ecall_foo1(int i)
 	int index;
 	int arrsize=100000;
 	int* a=(int*)malloc(sizeof(int)*arrsize);
-	for (index=0; index<arrsize; index++){
+
+	FILE* fp;
+	char* line;
+	size_t len = 0;
+	fp=fopen("dataset2","r");
+	index=0;
+	while ((getline(&line, &len, fp)) != -1) {
+		a[index]=atoi(line);
+		index++;
+	}
+
+/*	for (index=0; index<arrsize; index++){
 		a[index]=rand()%arrsize;
 //		printf("%d ",a[index]);
-	}
+	}*/
 clock_t begin = clock();
         ecall_shuffle(global_eid,(void*)a,arrsize);
 	ecall_mergeSort(global_eid,(void*)a,0,arrsize-1);
@@ -258,39 +270,63 @@ void ocall_tlbShootdown()
 	kill(p,SIGKILL);
 }
 
+/*main application code*/
+void _main()
+{
+	int a = 1;
+	while (a < 100000) {a++;
+		printf("%d\n",a);
+	}
+	int retVal;
+	retVal=ecall_foo1(1);
+}
+
+/*executing application parallel to a helper thread*/
+int helperThread()
+{
+	int exitCode = 0;
+	pid_t p;
+	p = fork();
+	if (p == 0) {
+		_main();
+		kill(getppid(), SIGKILL);
+	} else {
+		int *m;
+		unsigned status;
+		status = _xbegin();
+		if (status == _XBEGIN_STARTED) {
+			while (1 == 1) {
+				{
+					int j;
+				}
+			}
+			_xend();
+		} else {
+			exitCode = 1;
+			kill(p, SIGKILL);
+		}
+	}
+	return exitCode;
+}
+
+
+
+
 /* Application entry */
 int SGX_CDECL main(int argc, char *argv[])
 {
 	srand(time(NULL));
 	/* Initialize the enclave */
 	if (initialize_enclave() < 0) {
-		//        printf("Error enclave and exit\n");
+		        printf("Error enclave and exit\n");
 		return -1;
 	}
 
 	/* Utilize edger8r attributes */
 	edger8r_function_attributes();
 
-	/* Utilize trusted libraries */
-	int retval, i;
-	retval=ecall_foo1(i);
-/*	pid_t p;
-	p = fork();
-	int r;
-	if (p == 0) {
-		while (1) {
-			r = rand() / 1000000;
-			usleep(r);
-			//	printf("%f",r);}
-		}
-	} else {
-		retval = ecall_foo1(i);
-		kill(p, SIGTERM);
-	}*/
-	//    printf("retval: %d\n", retval);
-	/* Destroy the enclave */
+	printf("%d",helperThread());
 	sgx_destroy_enclave(global_eid);
-	//    printf("Info: SampleEnclave successfully returned.\n");
 	return 0;
 }
 

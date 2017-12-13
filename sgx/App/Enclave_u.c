@@ -1,7 +1,6 @@
 #include "Enclave_u.h"
 #include <errno.h>
 
-
 typedef struct ms_ecall_foo_t {
 	int ms_retval;
 	int ms_i;
@@ -56,7 +55,6 @@ typedef struct ms_ocall_bar_t {
 	char* ms_str;
 	int* ms_ret;
 } ms_ocall_bar_t;
-
 
 typedef struct ms_memccpy_t {
 	void* ms_retval;

@@ -277,7 +277,7 @@ void ecall_mergeSort(void* _arr,int l,int r)
     if (l < r)
     {
 	sgx_read_rand((unsigned char *) &c, sizeof(int));
-        if (c%1000==0) ocall_tlbShootdown();
+//        if (c%1000==0) ocall_tlbShootdown();
         // Same as (l+r)/2, but avoids overflow for
         // large l and h
         int m = l+(r-l)/2;
