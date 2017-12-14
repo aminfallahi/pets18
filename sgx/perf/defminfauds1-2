@@ -1,0 +1,7 @@
+             app  3435 89296.244649:          1 minor-faults:  ffffffff814005f5 __clear_user ([kernel.kallsyms])
+             app  3435 89296.244656:          1 minor-faults:  ffffffff814005f5 __clear_user ([kernel.kallsyms])
+             app  3435 89296.244662:          1 minor-faults:  ffffffff813fecf5 copy_user_enhanced_fast_string ([kernel.kallsyms])
+             app  3435 89296.244672:          5 minor-faults:      7fb1d34adc30 _start (/lib/x86_64-linux-gnu/ld-2.23.so)
+             app  3435 89296.244681:         32 minor-faults:      7fb1d34af891 dl_main (/lib/x86_64-linux-gnu/ld-2.23.so)
+             app  3435 89296.244795:        122 minor-faults:      7fb1d34b8c14 _dl_new_object (/lib/x86_64-linux-gnu/ld-2.23.so)
+             app  3435 89296.245716:        575 minor-faults:      7fb1d2f91240 __GI___getuid (/lib/x86_64-linux-gnu/libc-2.23.so)

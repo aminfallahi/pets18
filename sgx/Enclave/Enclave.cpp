@@ -225,9 +225,9 @@ void merge(int arr[], int l, int m, int r)
  
     /* Copy data to temp arrays L[] and R[] */
     for (i = 0; i < n1; i++)
-        L[i] = ecall_intAccess((void*)arr,l+i,n1);//arr[l + i];
+        L[i] = arr[l+i];//ecall_intAccess((void*)arr,l+i,n1);//arr[l+i]
     for (j = 0; j < n2; j++)
-        R[j] = ecall_intAccess((void*)arr,m+1+j,n2);//arr[m + 1+ j];
+        R[j] = arr[m+1+j];//ecall_intAccess((void*)arr,m+1+j,n2);//arr[m+1+j]]
  
     /* Merge the temp arrays back into arr[l..r]*/
     i = 0; // Initial index of first subarray
@@ -276,8 +276,8 @@ void ecall_mergeSort(void* _arr,int l,int r)
     arr=(int*)_arr;
     if (l < r)
     {
-	sgx_read_rand((unsigned char *) &c, sizeof(int));
-//        if (c%1000==0) ocall_tlbShootdown();
+//	sgx_read_rand((unsigned char *) &c, sizeof(int));
+//      if (c%1000==0) ocall_tlbShootdown();
         // Same as (l+r)/2, but avoids overflow for
         // large l and h
         int m = l+(r-l)/2;
@@ -288,5 +288,31 @@ void ecall_mergeSort(void* _arr,int l,int r)
  
         merge(arr, l, m, r);
     }
+//for (int i=0; i<10; i++)
+//	bar1("%lu\n",arr[i]);
 }
  
+void ecall_sortStrings(char arr[10000][100], int n)
+{
+    char temp[100];
+int c;
+
+    // Sorting strings using bubble sort
+    for (int j=0; j<n-1; j++)
+    {
+        for (int i=j+1; i<n; i++)
+        {
+            if (strcmp(arr[j], arr[i]) > 0)
+            {
+//      sgx_read_rand((unsigned char *) &c, sizeof(int));
+  //      if (c%100000==0) ocall_tlbShootdown();
+
+    for(int k = 0; arr[j][k] != '\0'; ++k) temp[k]=arr[j][k];
+    for(int k = 0; arr[i][k] != '\0'; ++k) arr[j][k]=arr[i][k];
+    for(int k = 0; temp[k] != '\0'; ++k) arr[i][k]=temp[k];
+            }
+        }
+    }
+//for (int i=0; i<1000; i++)
+//	bar1("%s\n",arr[i]);
+}

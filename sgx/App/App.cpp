@@ -21,16 +21,22 @@ int ecall_foo1(int i)
 	int retval;
 	int index;
 	int arrsize=100000;
-	int* a=(int*)malloc(sizeof(int)*arrsize);
+//	char a[10000][100];//=(int*)malloc(sizeof(int)*arrsize);
+//	char b[10000][100];
+//	int b[10000];
+int* a=(int*)malloc(sizeof(int)*arrsize);
 
 	FILE* fp;
 	char* line;
 	size_t len = 0;
-	fp=fopen("dataset2","r");
+	fp=fopen("datasets/randInt100000-1","r");
 	index=0;
 	while ((getline(&line, &len, fp)) != -1) {
 		a[index]=atoi(line);
+//printf("%d ",a[index]);
+//		strcpy(a[index],line);
 		index++;
+if (index>arrsize) break;
 	}
 
 /*	for (index=0; index<arrsize; index++){
@@ -38,11 +44,12 @@ int ecall_foo1(int i)
 //		printf("%d ",a[index]);
 	}*/
 clock_t begin = clock();
-        ecall_shuffle(global_eid,(void*)a,arrsize);
+//        ecall_shuffle(global_eid,(void*)a,arrsize);
 	ecall_mergeSort(global_eid,(void*)a,0,arrsize-1);
+//	ecall_sortStrings(global_eid,a,10000);
 clock_t end = clock();
 double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("%lf",time_spent);
+	printf("%lf\n",time_spent);
 //	for (index=0; index<100000; index++)
 //		printf("%d ",a[index]);
 
@@ -273,12 +280,14 @@ void ocall_tlbShootdown()
 /*main application code*/
 void _main()
 {
-	int a = 1;
+/*	int a = 1;
 	while (a < 100000) {a++;
 		printf("%d\n",a);
-	}
+	}*/
 	int retVal;
 	retVal=ecall_foo1(1);
+
+
 }
 
 /*executing application parallel to a helper thread*/
@@ -288,23 +297,32 @@ int helperThread()
 	pid_t p;
 	p = fork();
 	if (p == 0) {
-		_main();
-		kill(getppid(), SIGKILL);
-	} else {
-		int *m;
-		unsigned status;
-		status = _xbegin();
-		if (status == _XBEGIN_STARTED) {
-			while (1 == 1) {
-				{
-					int j;
-				}
+//		_main();
+//		kill(getppid(), SIGKILL);
+		while (1==1){
+			{
+                              int* dum=(int*)malloc(rand()%1000);
+                              free(dum);
+
 			}
-			_xend();
-		} else {
-			exitCode = 1;
-			kill(p, SIGKILL);
 		}
+	} else {
+//		unsigned status;
+//		status = _xbegin();
+//		if (status == _XBEGIN_STARTED) {
+/*			while (1 == 1) {
+				{
+					int* dum=(int*)malloc(rand()%1000);
+					free(dum);
+				}
+			}*/
+//			_xend();
+//		} else {
+///			exitCode = 1;
+//			kill(p, SIGKILL);
+//		}
+		_main();
+		kill(p,SIGKILL);
 	}
 	return exitCode;
 }
@@ -324,8 +342,12 @@ int SGX_CDECL main(int argc, char *argv[])
 
 	/* Utilize edger8r attributes */
 	edger8r_function_attributes();
-
-	printf("%d",helperThread());
+ecall_foo1(1);
+//clock_t begin=clock();
+//helperThread();
+//clock_t end=clock();
+//double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+//printf("\nhelper %lf\n",time_spent);
 	sgx_destroy_enclave(global_eid);
 	return 0;
 }

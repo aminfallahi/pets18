@@ -46,6 +46,11 @@ typedef struct ms_ecall_mergeSort_t {
 	int ms_r;
 } ms_ecall_mergeSort_t;
 
+typedef struct ms_ecall_sortStrings_t {
+	char* ms_arr;
+	int ms_n;
+} ms_ecall_sortStrings_t;
+
 typedef struct ms_ecall_sgx_cpuid_t {
 	int* ms_cpuinfo;
 	int ms_leaf;
@@ -205,13 +210,23 @@ sgx_status_t ecall_mergeSort(sgx_enclave_id_t eid, void* _arr, int l, int r)
 	return status;
 }
 
+sgx_status_t ecall_sortStrings(sgx_enclave_id_t eid, char arr[10000][100], int n)
+{
+	sgx_status_t status;
+	ms_ecall_sortStrings_t ms;
+	ms.ms_arr = (char*)arr;
+	ms.ms_n = n;
+	status = sgx_ecall(eid, 9, &ocall_table_Enclave, &ms);
+	return status;
+}
+
 sgx_status_t ecall_sgx_cpuid(sgx_enclave_id_t eid, int cpuinfo[4], int leaf)
 {
 	sgx_status_t status;
 	ms_ecall_sgx_cpuid_t ms;
 	ms.ms_cpuinfo = (int*)cpuinfo;
 	ms.ms_leaf = leaf;
-	status = sgx_ecall(eid, 9, &ocall_table_Enclave, &ms);
+	status = sgx_ecall(eid, 10, &ocall_table_Enclave, &ms);
 	return status;
 }
 
