@@ -13,53 +13,53 @@
 #include <time.h>
 #include <signal.h>
 #include <immintrin.h>
-
+#include <resource.h>
 
 int ecall_foo1(int i)
 {
 	sgx_status_t ret = SGX_ERROR_UNEXPECTED;
 	int retval;
 	int index;
-	int arrsize=100000;
-//	char a[10000][100];//=(int*)malloc(sizeof(int)*arrsize);
-//	char b[10000][100];
-//	int b[10000];
-int* a=(int*)malloc(sizeof(int)*arrsize);
+	int arrsize = 100000;
+	//	char a[10000][100];//=(int*)malloc(sizeof(int)*arrsize);
+	//	char b[10000][100];
+	//	int b[10000];
+	int* a = (int*) malloc(sizeof(int)*arrsize);
 
 	FILE* fp;
 	char* line;
 	size_t len = 0;
-	fp=fopen("datasets/randInt100000-1","r");
-	index=0;
+	fp = fopen("datasets/randInt100000-1", "r");
+	index = 0;
 	while ((getline(&line, &len, fp)) != -1) {
-		a[index]=atoi(line);
-//printf("%d ",a[index]);
-//		strcpy(a[index],line);
+		a[index] = atoi(line);
+		//printf("%d ",a[index]);
+		//		strcpy(a[index],line);
 		index++;
-if (index>arrsize) break;
+		if (index > arrsize) break;
 	}
 
-/*	for (index=0; index<arrsize; index++){
-		a[index]=rand()%arrsize;
-//		printf("%d ",a[index]);
-	}*/
-clock_t begin = clock();
-//        ecall_shuffle(global_eid,(void*)a,arrsize);
-	ecall_mergeSort(global_eid,(void*)a,0,arrsize-1);
-//	ecall_sortStrings(global_eid,a,10000);
-clock_t end = clock();
-double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-	printf("%lf\n",time_spent);
-//	for (index=0; index<100000; index++)
-//		printf("%d ",a[index]);
+	/*	for (index=0; index<arrsize; index++){
+			a[index]=rand()%arrsize;
+	//		printf("%d ",a[index]);
+		}*/
+	clock_t begin = clock();
+	//        ecall_shuffle(global_eid,(void*)a,arrsize);
+	ecall_mergeSort(global_eid, (void*) a, 0, arrsize - 1);
+	//	ecall_sortStrings(global_eid,a,10000);
+	clock_t end = clock();
+	double time_spent = (double) (end - begin) / CLOCKS_PER_SEC;
+	printf("%lf\n", time_spent);
+	//	for (index=0; index<100000; index++)
+	//		printf("%d ",a[index]);
 
 	//    ret = ecall_foo(global_eid, &retval, i);
 	//    ret = ecall_amin(global_eid, &retval, 100);
-/*	int *a = (int*) malloc(sizeof(int)*128);
-	for (i = 0; i < 128; i++) a[i] = i;
-	int x = 3;
-	ret = ecall_intAccess(global_eid, &retval, &a[0], 50, 128);
-	printf("retete %d\n", retval);*/
+	/*	int *a = (int*) malloc(sizeof(int)*128);
+		for (i = 0; i < 128; i++) a[i] = i;
+		int x = 3;
+		ret = ecall_intAccess(global_eid, &retval, &a[0], 50, 128);
+		printf("retete %d\n", retval);*/
 	/*    int j, *a;
 	    a = (int*) malloc(sizeof (int)*10000);
 	    for (j = 0; j < 100; j++)
@@ -272,20 +272,20 @@ void ocall_bar(const char *str, int ret[1])
 void ocall_tlbShootdown()
 {
 	pid_t p;
-	p=fork();
+	p = fork();
 	//if (p == 0);
-	kill(p,SIGKILL);
+	kill(p, SIGKILL);
 }
 
 /*main application code*/
 void _main()
 {
-/*	int a = 1;
-	while (a < 100000) {a++;
-		printf("%d\n",a);
-	}*/
+	/*	int a = 1;
+		while (a < 100000) {a++;
+			printf("%d\n",a);
+		}*/
 	int retVal;
-	retVal=ecall_foo1(1);
+	retVal = ecall_foo1(1);
 
 
 }
@@ -294,41 +294,47 @@ void _main()
 int helperThread()
 {
 	int exitCode = 0;
+	long cs = 0;
 	pid_t p;
 	p = fork();
 	if (p == 0) {
-//		_main();
-//		kill(getppid(), SIGKILL);
-		while (1==1){
+		cpu_set_t set;
+		CPU_ZERO(&set);
+		CPU_SET(0, &set);
+		sched_setaffinity(p, sizeof(cpu_set_t), &set);
+		if (!_xtest)
+			_main();
+		kill(getppid(), SIGKILL);
+	}
+} else {
+	cpu_set_t set;
+	CPU_ZERO(&set);
+	CPU_SET(1, &set);
+	sched_setaffinity(getppid(), sizeof(cpu_set_t), &set);
+	unsigned status;
+	__asm__("FALLBACK:\r\n");
+	status = _xbegin();
+	if (status == _XBEGIN_STARTED) {
+		while (1 == 1) {
 			{
-                              int* dum=(int*)malloc(rand()%1000);
-                              free(dum);
-
+				int* dum = (int*) malloc(rand() % 1000);
+				free(dum);
 			}
 		}
+		_xend();
 	} else {
-//		unsigned status;
-//		status = _xbegin();
-//		if (status == _XBEGIN_STARTED) {
-/*			while (1 == 1) {
-				{
-					int* dum=(int*)malloc(rand()%1000);
-					free(dum);
-				}
-			}*/
-//			_xend();
-//		} else {
-///			exitCode = 1;
-//			kill(p, SIGKILL);
-//		}
-		_main();
-		kill(p,SIGKILL);
+		struct rusage * u;
+		getrusage(RUSAGE_SELF, u);
+		if (u->ru_nvcsw + u->ru_nivcsw > c) {
+			c = u->ru_nvcsw + u->ru_nivcsw;
+			__asm__("GOTO FALLBACK\r\n");
+		}
+		exitCode = 1;
+		kill(p, SIGKILL);
 	}
-	return exitCode;
 }
-
-
-
+return exitCode;
+}
 
 /* Application entry */
 int SGX_CDECL main(int argc, char *argv[])
@@ -336,18 +342,18 @@ int SGX_CDECL main(int argc, char *argv[])
 	srand(time(NULL));
 	/* Initialize the enclave */
 	if (initialize_enclave() < 0) {
-		        printf("Error enclave and exit\n");
+		printf("Error enclave and exit\n");
 		return -1;
 	}
 
 	/* Utilize edger8r attributes */
 	edger8r_function_attributes();
-ecall_foo1(1);
-//clock_t begin=clock();
-//helperThread();
-//clock_t end=clock();
-//double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-//printf("\nhelper %lf\n",time_spent);
+	ecall_foo1(1);
+	//clock_t begin=clock();
+	//helperThread();
+	//clock_t end=clock();
+	//double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+	//printf("\nhelper %lf\n",time_spent);
 	sgx_destroy_enclave(global_eid);
 	return 0;
 }
