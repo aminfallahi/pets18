@@ -333,6 +333,7 @@ int helperThread()
 		kill(p, SIGKILL);
 	}
 }
+}
 return exitCode;
 }
 
