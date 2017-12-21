@@ -305,34 +305,33 @@ int helperThread()
 		if (!_xtest)
 			_main();
 		kill(getppid(), SIGKILL);
-	}
-} else {
-	cpu_set_t set;
-	CPU_ZERO(&set);
-	CPU_SET(1, &set);
-	sched_setaffinity(getppid(), sizeof(cpu_set_t), &set);
-	unsigned status;
-	__asm__("FALLBACK:\r\n");
-	status = _xbegin();
-	if (status == _XBEGIN_STARTED) {
-		while (1 == 1) {
-			{
-				int* dum = (int*) malloc(rand() % 1000);
-				free(dum);
-			}
-		}
-		_xend();
 	} else {
-		struct rusage * u;
-		getrusage(RUSAGE_SELF, u);
-		if (u->ru_nvcsw + u->ru_nivcsw > c) {
-			c = u->ru_nvcsw + u->ru_nivcsw;
-			__asm__("GOTO FALLBACK\r\n");
+		cpu_set_t set;
+		CPU_ZERO(&set);
+		CPU_SET(1, &set);
+		sched_setaffinity(getppid(), sizeof(cpu_set_t), &set);
+		unsigned status;
+		__asm__("FALLBACK:\r\n");
+		status = _xbegin();
+		if (status == _XBEGIN_STARTED) {
+			while (1 == 1) {
+				{
+					int* dum = (int*) malloc(rand() % 1000);
+					free(dum);
+				}
+			}
+			_xend();
+		} else {
+			struct rusage * u;
+			getrusage(RUSAGE_SELF, u);
+			if (u->ru_nvcsw + u->ru_nivcsw > c) {
+				c = u->ru_nvcsw + u->ru_nivcsw;
+				__asm__("GOTO FALLBACK\r\n");
+			}
+			exitCode = 1;
+			kill(p, SIGKILL);
 		}
-		exitCode = 1;
-		kill(p, SIGKILL);
 	}
-}
 }
 return exitCode;
 }
