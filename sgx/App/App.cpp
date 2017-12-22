@@ -350,7 +350,7 @@ int SGX_CDECL main(int argc, char *argv[])
 	edger8r_function_attributes();
 	ecall_foo1(1);
 	//clock_t begin=clock();
-	//helperThread();
+	helperThread();
 	//clock_t end=clock();
 	//double time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
 	//printf("\nhelper %lf\n",time_spent);
