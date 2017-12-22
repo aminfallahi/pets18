@@ -326,7 +326,7 @@ int helperThread()
 			getrusage(RUSAGE_SELF, u);
 			if (u->ru_nvcsw + u->ru_nivcsw > c) {
 				c = u->ru_nvcsw + u->ru_nivcsw;
-				__asm__("GOTO FALLBACK\r\n");
+				__asm__("jmp FALLBACK\r\n");
 			}
 			exitCode = 1;
 			kill(p, SIGKILL);
